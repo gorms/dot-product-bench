@@ -9,9 +9,6 @@
 #include <vector>
 
 /**
- * @brief Dot product algorithm utilising AVX512
- * @param x Vec
- * @param y Vec
- * @return float Dot product
+ * Dot product algorithm utilising AVX512
  */
 float dotAVX512(std::vector<float>& x, std::vector<float>& y);

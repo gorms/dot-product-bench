@@ -19,11 +19,8 @@
 #include <Eigen/Dense>
 
 /**
- * @brief Simple/Naive dot product implementation.
+ * Simple/Naive dot product implementation.
  * Iterate through both vectors performing multiplies and adds.
- * @param x Vec
- * @param y Vec
- * @return float Dot product
  */
 float dotSimple(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
@@ -38,10 +35,7 @@ float dotSimple(std::vector<float>& x, std::vector<float>& y) {
 }
 
 /**
- * @brief Dot product implementation using std::inner_product
- * @param x Vec
- * @param y Vec
- * @return float Dot product
+ * Dot product implementation using std::inner_product
  */
 float dotInner(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
@@ -49,10 +43,7 @@ float dotInner(std::vector<float>& x, std::vector<float>& y) {
 }
 
 /**
- * @brief Dot product using Eigen lib
- * @param x Vec
- * @param y Vec
- * @return float Dot product
+ * Dot product using Eigen lib
  */
 float dotEigen(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
@@ -65,10 +56,7 @@ float dotEigen(std::vector<float>& x, std::vector<float>& y) {
 }
 
 /**
- * @brief Dot product using AVX2 algorithm
- * @param x Vec
- * @param y Vec
- * @return float Dot product
+ * Dot product using AVX2 algorithm
  */
 float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
@@ -108,19 +96,14 @@ float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
 }
 
 /**
- * @brief Test a dot product algorithm
+ * Test a dot product algorithm
  * First warm up the cache by running the algo a number of times. Then test.
  * Print results.
- * @param fn Dot product algorithm
- * @param x Vec
- * @param y Vec
- * @param s Algo name
- * @param iterations Number of test iterations
  */
 void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               std::vector<float>& x,
               std::vector<float>& y,
-              const std::string& s,
+              const std::string& name,
               size_t iterations = 20) {
     std::vector<double> times(iterations);
 
@@ -153,7 +136,7 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
     double max = *std::max_element(times.begin(), times.end());
 
     // Pretty print out
-    std::cout << s << ":\n"
+    std::cout << name << ":\n"
               << "  mean:   " << mean   << " ms\n"
               << "  stddev: " << stddev << " ms\n"
               << "  min:    " << min    << " ms\n"
@@ -161,10 +144,8 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
 }
 
 /**
- * @brief Test all dot product algorithms using a given vector length.
+ * Test all dot product algorithms using a given vector length.
  * Vector contains n elements of random floats.
- * @param n Vector length.
- * @param label Test name to be printed before results.
  */
 void testAll(size_t n, const std::string& label) {
     std::random_device dev;
