@@ -77,7 +77,7 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
     for (size_t i = 0; i < iterations; i++) {
         auto start = std::chrono::high_resolution_clock::now();
         // Run the algo
-        fn(x, y);
+        volatile float sum = fn(x, y);
         auto end = std::chrono::high_resolution_clock::now();
         // Store the run-time
         times[i] = std::chrono::duration<double, std::milli>(end - start).count();
