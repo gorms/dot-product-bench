@@ -26,7 +26,6 @@
  * @return float Dot product
  */
 float dotSimple(std::vector<float>& x, std::vector<float>& y) {
-    // Make vectors match in size
     assert(x.size() == y.size());
 
     float sum = 0;
@@ -45,7 +44,6 @@ float dotSimple(std::vector<float>& x, std::vector<float>& y) {
  * @return float Dot product
  */
 float dotInner(std::vector<float>& x, std::vector<float>& y) {
-    // Make vectors match in size
     assert(x.size() == y.size());
     return std::inner_product(x.begin(), x.end(), y.begin(), 0.0f);
 }
@@ -95,9 +93,9 @@ float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
     __m128 hi = _mm256_extractf128_ps(sum, 1);
     // vertical add the top 4 and bottom 4 floats
     __m128 s = _mm_add_ps(lo, hi);
-    // horizontal add 0,1 and 2,3. results get placed in lanes 0,1,2,3
+    // horizontal add 0,1 and 2,3. results get placed in lanes 0,1 (repeated in 2,3)
     s = _mm_hadd_ps(s, s);
-    // horizontal add 0,1 and 2,3. result gets placed in lane 0
+    // horizontal add 0,1 and 2,3. result gets placed in lane 0 (repeated 1,2,3)
     s = _mm_hadd_ps(s, s);
     // Extract lane 0 float
     float result = _mm_cvtss_f32(s);
@@ -122,12 +120,13 @@ float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
 void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               std::vector<float>& x,
               std::vector<float>& y,
-              std::string s,
+              const std::string& s,
               size_t iterations = 20) {
     std::vector<double> times(iterations);
 
     // Warm up the cache
     for (size_t i = 0; i < 3; i++)
+        // Use volatile so unused result doesn't optimise out the call.
         (void)(volatile float)fn(x, y);
 
     // Run the algo for a number of iterations and record the times
