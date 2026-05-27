@@ -1,7 +1,9 @@
-// Author: Michael Gorman
-// Date:   2026-05-27
-// Brief:  AVX-512 dot product implementation. Compiled separately with
-//         -mavx512f to isolate AVX-512 instructions from the main translation unit.
+/**
+ * @author Michael Gorman
+ * @date   2026-05-27
+ * @brief  AVX-512 dot product implementation. Compiled separately with
+ *         -mavx512f to isolate AVX-512 instructions from the main translation unit.
+ */
 
 #include "dot_avx512.hpp"
 

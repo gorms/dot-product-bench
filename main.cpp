@@ -1,8 +1,9 @@
-// Author: Michael Gorman
-// Date:   2026-05-27
-// Brief:  Benchmarks dot product implementations across scalar, STL, AVX2,
-//         Eigen, and AVX-512.
-//         Sweep over L1, L2, L3, and RAM-bound vector sizes.
+/**
+ * @author Michael Gorman
+ * @date   2026-05-27
+ * @brief  Benchmarks dot product implementations across scalar, STL, AVX2,
+ *         Eigen, and AVX-512. Sweeps over L1, L2, L3, and RAM-bound vector sizes.
+ */
 
 #include <iostream>
 #include <vector>
@@ -18,8 +19,8 @@
 #include <Eigen/Dense>
 
 /**
- * @brief Simple/Nieve dot product implementation.
- * Iterate through both vectors performaning multiplies and adds.
+ * @brief Simple/Naive dot product implementation.
+ * Iterate through both vectors performing multiplies and adds.
  * @param x Vec
  * @param y Vec
  * @return float Dot product
@@ -41,7 +42,7 @@ float dotSimple(std::vector<float>& x, std::vector<float>& y) {
  * @brief Dot product implementation using std::inner_product
  * @param x Vec
  * @param y Vec
- * @return float 
+ * @return float Dot product
  */
 float dotInner(std::vector<float>& x, std::vector<float>& y) {
     // Make vectors match in size
@@ -53,11 +54,12 @@ float dotInner(std::vector<float>& x, std::vector<float>& y) {
  * @brief Dot product using Eigen lib
  * @param x Vec
  * @param y Vec
- * @return float 
+ * @return float Dot product
  */
 float dotEigen(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
 
+    // Map vecs to Eigen types
     Eigen::Map<Eigen::VectorXf> ex(x.data(), x.size());
     Eigen::Map<Eigen::VectorXf> ey(y.data(), y.size());
 
@@ -68,7 +70,7 @@ float dotEigen(std::vector<float>& x, std::vector<float>& y) {
  * @brief Dot product using AVX2 algorithm
  * @param x Vec
  * @param y Vec
- * @return float 
+ * @return float Dot product
  */
 float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
@@ -126,7 +128,7 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
 
     // Warm up the cache
     for (size_t i = 0; i < 3; i++)
-        fn(x, y);
+        (void)(volatile float)fn(x, y);
 
     // Run the algo for a number of iterations and record the times
     for (size_t i = 0; i < iterations; i++) {
@@ -181,11 +183,11 @@ void testAll(size_t n, const std::string& label) {
     std::cout << "=== " << label << " (" << n << " elements) ===\n";
     testAlgo(dotSimple, x, y, "DotSimple");
     testAlgo(dotInner, x, y, "DotInner");
+    testAlgo(dotEigen, x, y, "DotEigen");
     testAlgo(dotAVX2, x, y, "DotAVX2");
     if (__builtin_cpu_supports("avx512f")) {
         testAlgo(dotAVX512, x, y, "DotAVX512");
     }
-    testAlgo(dotEigen, x, y, "DotEigen");
     std::cout << "\n";
 }
 

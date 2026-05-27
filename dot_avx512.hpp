@@ -1,6 +1,8 @@
-// Author: Michael Gorman
-// Date:   2026-05-27
-// Brief:  AVX-512 dot product interface.
+/**
+ * @author Michael Gorman
+ * @date   2026-05-27
+ * @brief  AVX-512 dot product interface.
+ */
 
 #pragma once
 
@@ -10,6 +12,6 @@
  * @brief Dot product algorithm utilising AVX512
  * @param x Vec
  * @param y Vec
- * @return float 
+ * @return float Dot product
  */
 float dotAVX512(std::vector<float>& x, std::vector<float>& y);
