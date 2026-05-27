@@ -1,8 +1,8 @@
-CC      = gcc
-CFLAGS  = -O2 -Wall -Wextra
+CXX     = g++
+CXXFLAGS = -O2 -Wall -Wextra
 
-bench: main.c
-	$(CC) $(CFLAGS) -o bench main.c
+bench: main.cpp
+	$(CXX) $(CXXFLAGS) -o bench main.cpp
 
 clean:
 	rm -f bench
