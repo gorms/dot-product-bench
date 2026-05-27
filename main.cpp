@@ -79,7 +79,7 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
         // Run the algo
         volatile float sum = fn(x, y);
         auto end = std::chrono::high_resolution_clock::now();
-        // Store the run-time
+        // Store the execution time
         times[i] = std::chrono::duration<double, std::milli>(end - start).count();
     }
 
@@ -104,7 +104,7 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               << "  max:    " << max    << " ms\n";
 }
 
-void testAll(size_t n) {
+void testAll(size_t n, const std::string& label) {
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -117,17 +117,27 @@ void testAll(size_t n) {
         y[i] = dist(rng);
     }
 
+    std::cout << "=== " << label << " (" << n << " elements) ===\n";
     testAlgo(dotSimple, x, y, "DotSimple");
     testAlgo(dotInner, x, y, "DotInner");
     testAlgo(dotAVX2, x, y, "DotAVX2");
     if (__builtin_cpu_supports("avx512f")) {
         testAlgo(dotAVX512, x, y, "DotAVX512");
     }
+    std::cout << "\n";
 }
 
 int main() {
-    std::cout << "Round 2\n";
+    // Two float vectors per test. We'll fill the caches with the two vectors.
+    // Cache sizes for Ryzen 7 6800HS and vector lengths:
+    //   L1d: 32KB  (per core)  4K floats per vector
+    //   L2:  512KB (per core)  64K floats per vector
+    //   L3:  16MB              2M floats per vector
+    //   RAM:                   100M floats per vector
+    testAll(4'096,       "L1 cache");
+    testAll(65'536,      "L2 cache");
+    testAll(2'097'152,   "L3 cache");
+    testAll(100'000'000, "RAM");
 
-    testAll(1e8);
     return 0;
 }
