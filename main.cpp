@@ -1,3 +1,8 @@
+// Author: Michael Gorman
+// Date:   2026-05-27
+// Brief:  Benchmarks dot product implementations across scalar, STL, AVX2,
+//         and AVX-512, sweeping over L1, L2, L3, and RAM-bound vector sizes.
+
 #include <iostream>
 #include <vector>
 #include <cassert>
@@ -9,7 +14,15 @@
 #include <cmath>
 #include <immintrin.h>
 #include "dot_avx512.hpp"
+#include <Eigen/Dense>
 
+/**
+ * @brief Nieve dot product implementation.
+ * Iterate through both vectors performaning multiplies and adds.
+ * @param x Vec
+ * @param y Vec
+ * @return float Dot product
+ */
 float dotSimple(std::vector<float>& x, std::vector<float>& y) {
     // Make vectors match in size
     assert(x.size() == y.size());
@@ -23,12 +36,40 @@ float dotSimple(std::vector<float>& x, std::vector<float>& y) {
     return sum;
 }
 
+/**
+ * @brief Dot product implementation using std::inner_product
+ * @param x Vec
+ * @param y Vec
+ * @return float 
+ */
 float dotInner(std::vector<float>& x, std::vector<float>& y) {
     // Make vectors match in size
     assert(x.size() == y.size());
     return std::inner_product(x.begin(), x.end(), y.begin(), 0.0f);
 }
 
+
+/**
+ * @brief Dot product using Eigen lib
+ * @param x Vec
+ * @param y Vec
+ * @return float 
+ */
+float dotEigen(std::vector<float>& x, std::vector<float>& y) {
+    assert(x.size() == y.size());
+
+    Eigen::Map<Eigen::VectorXf> ex(x.data(), x.size());
+    Eigen::Map<Eigen::VectorXf> ey(y.data(), y.size());
+
+    return ex.dot(ey);
+}
+
+/**
+ * @brief Dot product using AVX2 algorithm
+ * @param x Vec
+ * @param y Vec
+ * @return * float 
+ */
 float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
 
@@ -66,7 +107,16 @@ float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
     return result;
 }
 
-
+/**
+ * @brief Test a dot product algorithm
+ * First warm up the cache by running the algo a number of times. Then test.
+ * Print results.
+ * @param fn Dot product algorithm
+ * @param x Vec
+ * @param y Vec
+ * @param s Algo name
+ * @param iterations Number of test iterations
+ */
 void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               std::vector<float>& x,
               std::vector<float>& y,
@@ -74,10 +124,15 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               size_t iterations = 20) {
     std::vector<double> times(iterations);
 
+    // Warm up the cache
+    for (size_t i = 0; i < 3; i++)
+        fn(x, y);
+
+    // Run the algo for a number of iterations and record the times
     for (size_t i = 0; i < iterations; i++) {
         auto start = std::chrono::high_resolution_clock::now();
         // Run the algo
-        volatile float sum = fn(x, y);
+        (void)(volatile float)fn(x, y);
         auto end = std::chrono::high_resolution_clock::now();
         // Store the execution time
         times[i] = std::chrono::duration<double, std::milli>(end - start).count();
@@ -104,6 +159,12 @@ void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               << "  max:    " << max    << " ms\n";
 }
 
+/**
+ * @brief Test all dot product algorithms using a given vector length.
+ * Vector contains n elements of random floats.
+ * @param n Vector length.
+ * @param label Test name to be printed before results.
+ */
 void testAll(size_t n, const std::string& label) {
     std::random_device dev;
     std::mt19937 rng(dev());
@@ -124,6 +185,7 @@ void testAll(size_t n, const std::string& label) {
     if (__builtin_cpu_supports("avx512f")) {
         testAlgo(dotAVX512, x, y, "DotAVX512");
     }
+    testAlgo(dotEigen, x, y, "DotEigen");
     std::cout << "\n";
 }
 
