@@ -1,1 +1,3 @@
 bench
+*.o
+.vscode
