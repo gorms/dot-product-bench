@@ -6,7 +6,6 @@
  */
 
 #include "dot_avx512.hpp"
-
 #include <cassert>
 #include <immintrin.h>
 
@@ -22,7 +21,7 @@ float dotAVX512(std::vector<float>& x, std::vector<float>& y) {
         // Load 16 floats from each vector into the 512 bit registers
         __m512 a = _mm512_loadu_ps(&x[i]);
         __m512 b = _mm512_loadu_ps(&y[i]);
-        // Vertically add them
+        // Vertically multiply and add them
         sum = _mm512_fmadd_ps(a, b, sum);
     }
 
@@ -30,7 +29,7 @@ float dotAVX512(std::vector<float>& x, std::vector<float>& y) {
     // A lot simpler than AVX2
     float result = _mm512_reduce_add_ps(sum);
 
-    // scalar tail
+    // Scalar tail
     for (; i < n; i++)
         result += x[i] * y[i];
 
