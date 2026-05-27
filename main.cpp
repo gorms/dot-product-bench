@@ -5,6 +5,8 @@
 #include <chrono>
 #include <numeric>
 #include <functional>
+#include <algorithm>
+#include <cmath>
 #include <immintrin.h>
 #include "dot_avx512.hpp"
 
@@ -68,12 +70,38 @@ float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
 void testAlgo(std::function<float(std::vector<float>&, std::vector<float>&)> fn,
               std::vector<float>& x,
               std::vector<float>& y,
-              std::string s) {
-    auto start = std::chrono::high_resolution_clock::now();
-    fn(x, y);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<double, std::milli>(end - start);
-    std::cout << s << ": \t" << duration.count() << " ms\n";
+              std::string s,
+              size_t iterations = 20) {
+    std::vector<double> times(iterations);
+
+    for (size_t i = 0; i < iterations; i++) {
+        auto start = std::chrono::high_resolution_clock::now();
+        // Run the algo
+        fn(x, y);
+        auto end = std::chrono::high_resolution_clock::now();
+        // Store the run-time
+        times[i] = std::chrono::duration<double, std::milli>(end - start).count();
+    }
+
+    // Mean
+    double mean = std::accumulate(times.begin(), times.end(), 0.0) / iterations;
+
+    // Standard deviation
+    double variance = 0.0;
+    for (double t : times)
+        variance += (t - mean) * (t - mean);
+    double stddev = std::sqrt(variance / iterations);
+
+    // Min + Max
+    double min = *std::min_element(times.begin(), times.end());
+    double max = *std::max_element(times.begin(), times.end());
+
+    // Pretty print out
+    std::cout << s << ":\n"
+              << "  mean:   " << mean   << " ms\n"
+              << "  stddev: " << stddev << " ms\n"
+              << "  min:    " << min    << " ms\n"
+              << "  max:    " << max    << " ms\n";
 }
 
 void testAll(size_t n) {
