@@ -1,7 +1,8 @@
 // Author: Michael Gorman
 // Date:   2026-05-27
 // Brief:  Benchmarks dot product implementations across scalar, STL, AVX2,
-//         and AVX-512, sweeping over L1, L2, L3, and RAM-bound vector sizes.
+//         Eigen, and AVX-512.
+//         Sweep over L1, L2, L3, and RAM-bound vector sizes.
 
 #include <iostream>
 #include <vector>
@@ -17,7 +18,7 @@
 #include <Eigen/Dense>
 
 /**
- * @brief Nieve dot product implementation.
+ * @brief Simple/Nieve dot product implementation.
  * Iterate through both vectors performaning multiplies and adds.
  * @param x Vec
  * @param y Vec
@@ -48,7 +49,6 @@ float dotInner(std::vector<float>& x, std::vector<float>& y) {
     return std::inner_product(x.begin(), x.end(), y.begin(), 0.0f);
 }
 
-
 /**
  * @brief Dot product using Eigen lib
  * @param x Vec
@@ -68,7 +68,7 @@ float dotEigen(std::vector<float>& x, std::vector<float>& y) {
  * @brief Dot product using AVX2 algorithm
  * @param x Vec
  * @param y Vec
- * @return * float 
+ * @return float 
  */
 float dotAVX2(std::vector<float>& x, std::vector<float>& y) {
     assert(x.size() == y.size());
