@@ -1,5 +1,5 @@
 CXX      = g++
-CXXFLAGS = -O2 -Wall -Wextra -mavx2 -mfma $(shell pkg-config --cflags eigen3)
+CXXFLAGS = -O2 -Wall -Wextra -mavx2 -mfma -std=c++23 $(shell pkg-config --cflags eigen3)
 
 bench: main.o dot_avx512.o
 	$(CXX) $(CXXFLAGS) -o bench main.o dot_avx512.o
