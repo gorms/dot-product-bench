@@ -16,7 +16,7 @@ Benchmark four dot product implementations across vector sizes chosen to stress 
 | DotAVX2 | Hand written AVX2 using 256-bit fused multiply add |
 | DotAVX512 | Hand written AVX512 using 512-bit fused multiply add |
 
-AVX512 wasn't tested. AMD Zen3 doesn't support the instructions.
+AVX512 wasn't tested. AMD Zen3+ doesn't support the instructions.
 
 ## Results (mean ms)
 
